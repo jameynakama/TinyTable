@@ -10,9 +10,9 @@ object HelloWorldServerMain extends HelloWorldServer
 class HelloWorldServer extends HttpServer {
   override def configureHttp(router: HttpRouter): Unit = {
     router
-//      .filter[LoggingMDCFilter[Request, Response]]
-//      .filter[TraceIdMDCFilter[Request, Response]]
-//      .filter[CommonFilters]
+      .filter[LoggingMDCFilter[Request, Response]]
+      .filter[TraceIdMDCFilter[Request, Response]]
+      .filter[CommonFilters]
       .add[HelloWorldController]
   }
 }

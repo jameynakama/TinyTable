@@ -2,15 +2,28 @@ package com.jameyiguess.largetable
 
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
+import com.twitter.finatra.http.annotations.RouteParam
+
+import scala.collection.SortedMap
+
+case class KeyFromRouteRequest(@RouteParam key: String)
 
 class HelloWorldController extends Controller {
-  get("/hi") { request: Request =>
-//    info("get hi")
-    "Hello " + request.params.getOrElse("name", "unnamed")
+  var theDatabase: SortedMap[String, String] = SortedMap.empty[String, String]
+
+  get("/database") { _: Request =>
+    info("get database")
+    theDatabase
   }
 
-  post("/hi") { hiRequest: HiRequest =>
-//    info("post hi")
-    "Hello " + hiRequest.name + " with id " + hiRequest.id
+  get("/database/:key") { request: KeyFromRouteRequest =>
+    info("get database object")
+    theDatabase.getOrElse(request.key, response.notFound)
+  }
+
+  post("/database") { obj: ObjectRequest =>
+    info("post database object")
+    theDatabase = theDatabase.updated(obj.key, obj.value)
+    theDatabase.get(obj.key)
   }
 }
