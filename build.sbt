@@ -1,4 +1,4 @@
-name := "LargeTable"
+name := "TinyTable"
 
 version := "0.1"
 
