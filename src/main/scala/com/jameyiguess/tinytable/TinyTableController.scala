@@ -6,13 +6,17 @@ import com.twitter.finatra.http.annotations.{QueryParam, RouteParam}
 
 import scala.collection.SortedMap
 
-case class KeyRequest(@RouteParam key: String)
-case class RangeRequest(
+case class Entry(key: String, value: String, action: String)
+
+case class KeyRequestFromRoute(@RouteParam key: String)
+case class RangeRequestFromQueryParam(
                          @QueryParam start: String,
                          @QueryParam end: String,
                        )
 
-class HelloWorldController extends Controller {
+case class ObjectRequestForPost(key: String, value: String)
+
+class TinyTableController extends Controller {
   //  var theDatabase: SortedMap[String, String] = SortedMap.empty[String, String]
   var theDatabase: SortedMap[String, String] = SortedMap(
     "ant" -> "the ant value",
@@ -33,19 +37,21 @@ class HelloWorldController extends Controller {
     theDatabase
   }
 
-  get("/database/:key") { request: KeyRequest =>
+  get("/database/:key") { request: KeyRequestFromRoute =>
     info("get database object")
     theDatabase.getOrElse(request.key, response.notFound)
   }
 
-  get("/database/range") { request: RangeRequest =>
-    info("get database")
+  get("/database/range") { request: RangeRequestFromQueryParam =>
+    info("get database range")
     theDatabase.range(request.start, request.end)
   }
 
-  post("/database") { obj: ObjectRequest =>
+  post("/database") { obj: ObjectRequestForPost =>
     info("post database object")
+    val entry = Entry(obj.key, obj.value, "create")
     theDatabase = theDatabase.updated(obj.key, obj.value)
-    theDatabase.get(obj.key)
+    WriteAheadLogger.writeToDisk(entry)
+    Map[String, String] {obj.key -> obj.value}
   }
 }

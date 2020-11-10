@@ -5,14 +5,14 @@ import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.{CommonFilters, LoggingMDCFilter, TraceIdMDCFilter}
 import com.twitter.finatra.http.routing.HttpRouter
 
-object HelloWorldServerMain extends HelloWorldServer
+object TinyTableServerMain extends TinyTableServer
 
-class HelloWorldServer extends HttpServer {
+class TinyTableServer extends HttpServer {
   override def configureHttp(router: HttpRouter): Unit = {
     router
       .filter[LoggingMDCFilter[Request, Response]]
       .filter[TraceIdMDCFilter[Request, Response]]
       .filter[CommonFilters]
-      .add[HelloWorldController]
+      .add[TinyTableController]
   }
 }
